@@ -1,9 +1,9 @@
 import { useRef, useEffect, useState } from "react";
 import Trash from '../icons/Trash'
-import { setNewOffset, autoGrow, setZIndex } from "../utils";
+import { setNewOffset, autoGrow, setZIndex, bodyParser} from "../utils";
 
 function NoteCard({ note }) {
-    const body = JSON.parse(note.body)
+    const body = bodyParser(note.body)
     const [position, setPositon] = useState(JSON.parse(note.position))
     const colors = JSON.parse(note.colors)
 
@@ -16,11 +16,11 @@ function NoteCard({ note }) {
     })
 
     const textAreaRef = useRef(null)
-    const autoGrow = (textAreaRef) => {
-        const { current } = textAreaRef;
-        current.style.height = "auto"; //reset the height
-        current.style.height = current.scrollHeight + "px" //set current height
-    }
+    // const autoGrow = (textAreaRef) => {
+    //     const { current } = textAreaRef;
+    //     current.style.height = "auto"; //reset the height
+    //     current.style.height = current.scrollHeight + "px" //set current height
+    // }
 
     const mouseDown = (e) => {
         mouseStartPos.x = e.clientX;
