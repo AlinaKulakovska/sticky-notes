@@ -1,10 +1,10 @@
 import { useRef, useEffect, useState } from "react";
-import Trash from '../icons/Trash'
 import Spinner from "../icons/Spiner";
 import { db } from "../appwrite/database";
+import DeleteButton from "./DeleteButton";
 import { setNewOffset, autoGrow, setZIndex, bodyParser } from "../utils";
 
-function NoteCard({ note }) {
+function NoteCard({ note, setNotes }) {
     const [saving, setSaving] = useState(false);
     const keyUpTimer = useRef(null);
 
@@ -21,20 +21,17 @@ function NoteCard({ note }) {
     })
 
     const textAreaRef = useRef(null)
-    // const autoGrow = (textAreaRef) => {
-    //     const { current } = textAreaRef;
-    //     current.style.height = "auto"; //reset the height
-    //     current.style.height = current.scrollHeight + "px" //set current height
-    // }
 
     const mouseDown = (e) => {
-        mouseStartPos.x = e.clientX;
-        mouseStartPos.y = e.clientY;
-
-        document.addEventListener("mousemove", mouseMove);
-        document.addEventListener("mouseup", mouseUp);
-
-        setZIndex(cardRef.current)
+        if(e.target.className === "card-header"){
+            mouseStartPos.x = e.clientX;
+            mouseStartPos.y = e.clientY;
+    
+            document.addEventListener("mousemove", mouseMove);
+            document.addEventListener("mouseup", mouseUp);
+    
+            setZIndex(cardRef.current)
+        }
     };
 
 
@@ -99,7 +96,7 @@ function NoteCard({ note }) {
             <div className="card-header"
                 onMouseDown={mouseDown}
                 style={{ backgroundColor: colors.colorHeader }}>
-                <Trash />
+                <DeleteButton setNotes={setNotes} noteId={note.$id}/>
                 {saving && (
                     <div className="card-saving">
                         <Spinner color={colors.colorText} />
