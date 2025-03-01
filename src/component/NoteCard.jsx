@@ -1,8 +1,13 @@
 import { useRef, useEffect, useState } from "react";
 import Trash from '../icons/Trash'
-import { setNewOffset, autoGrow, setZIndex, bodyParser} from "../utils";
+import Spinner from "../icons/Spiner";
+import { db } from "../appwrite/database";
+import { setNewOffset, autoGrow, setZIndex, bodyParser } from "../utils";
 
 function NoteCard({ note }) {
+    const [saving, setSaving] = useState(false);
+    const keyUpTimer = useRef(null);
+
     const body = bodyParser(note.body)
     const [position, setPositon] = useState(JSON.parse(note.position))
     const colors = JSON.parse(note.colors)
@@ -51,7 +56,36 @@ function NoteCard({ note }) {
     const mouseUp = () => {
         document.removeEventListener("mousemove", mouseMove)
         document.removeEventListener("mouseUp", mouseUp)
+
+        const newPosition = setNewOffset(cardRef.current)
+        saveData('position', newPosition)
     }
+
+    const saveData = async (key, value) => {
+        const payload = { [key]: JSON.stringify(value) };
+
+        try {
+            await db.notes.update(note.$id, payload)
+        } catch (error) {
+            console.log(error);
+        }
+        setSaving(false);
+    }
+
+    const handleKeyUp = async () => {
+        //1 - Initiate "saving" state
+        setSaving(true);
+     
+        //2 - If we have a timer id, clear it so we can add another two seconds
+        if (keyUpTimer.current) {
+            clearTimeout(keyUpTimer.current);
+        }
+     
+        //3 - Set timer to trigger save in 2 seconds
+        keyUpTimer.current = setTimeout(() => {
+            saveData("body", textAreaRef.current.value);
+        }, 2000);
+    };
 
     return (
         <div className="card"
@@ -66,6 +100,14 @@ function NoteCard({ note }) {
                 onMouseDown={mouseDown}
                 style={{ backgroundColor: colors.colorHeader }}>
                 <Trash />
+                {saving && (
+                    <div className="card-saving">
+                        <Spinner color={colors.colorText} />
+                        <span style={{ color: colors.colorText }}>
+                            Saving...
+                        </span>
+                    </div>
+                )}
             </div>
 
             <div className="card-body">
@@ -73,6 +115,7 @@ function NoteCard({ note }) {
                     ref={textAreaRef}
                     defaultValue={body}
                     style={{ color: colors.colorText }}
+                    onKeyUp={handleKeyUp}
                     onInput={() => { autoGrow(textAreaRef) }}
                     onFocus={() => {
                         setZIndex(cardRef.current);
