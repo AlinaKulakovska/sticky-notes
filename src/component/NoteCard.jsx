@@ -16,9 +16,9 @@ function NoteCard({ note, setNotes }) {
     const cardRef = useRef(null);
 
     useEffect(() => {
-        autoGrow(textAreaRef)
-            , []
-    })
+        autoGrow(textAreaRef);
+        setZIndex(cardRef.current);
+    }, []);
 
     const textAreaRef = useRef(null)
 
@@ -96,7 +96,7 @@ function NoteCard({ note, setNotes }) {
             <div className="card-header"
                 onMouseDown={mouseDown}
                 style={{ backgroundColor: colors.colorHeader }}>
-                <DeleteButton setNotes={setNotes} noteId={note.$id}/>
+                <DeleteButton  noteId={note.$id}/>
                 {saving && (
                     <div className="card-saving">
                         <Spinner color={colors.colorText} />
